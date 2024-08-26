@@ -1,0 +1,9 @@
+BEVHeight.egg-info/
+outputs/
+data/
+__pycache__/
+ckpt/
+build/
+hub/
+*.out
+*.so
