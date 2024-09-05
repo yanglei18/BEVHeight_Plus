@@ -21,7 +21,6 @@
     <a href="https://scholar.google.com.hk/citations?user=0Q7pN4cAAAAJ&hl=zh-CN&oi=sra"><strong>Xinyu Zhang</strong></a>
     ·
     <a href="https://scholar.google.com.hk/citations?user=Jtmq_m0AAAAJ&hl=zh-CN&oi=sra"><strong>Kaicheng Yu</strong></a>
-
   </p>
 
 
@@ -84,6 +83,12 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
 ```
 
 # Experimental Results
+- **DAIR-V2X-I Dataset**
+
+
+- **Rope3D Dataset**
+
+
 - **KITTI Dataset**
 <div align=left>
 <table>
@@ -92,7 +97,7 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td colspan="3" align=center>AP|3D</td>
         <td colspan="3" align=center>AP|BEV</td>
         <td rowspan="3" align=center>config</td> 
-        <td rowspan="3" align=center>model pth</td>
+        <td rowspan="3" align=center>model ckpt</td>
     </tr>
     <tr align=center>
     </tr>
@@ -106,36 +111,33 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
     </tr>
     <tr align=center>
         <td>BEVDepth</td> 
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>10.69</td> 
+        <td>7.31</td> 
+        <td>5.88</td> 
+        <td>35.14</td> 
+        <td>23.22</td> 
+        <td>19.33</td>
+        <td><a href=exps/kitti-360/bev_depth_lss_r101_384_1280_256x256.py>config</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td> 
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>10.61</td> 
+        <td>6.97</td> 
+        <td>5.51</td> 
+        <td>34.58</td> 
+        <td>22.05</td> 
+        <td>17.96</td>
+        <td><a href=exps/kitti-360/bev_height_lss_r101_384_1280_256x256.py>config</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td> 
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>11.37</td> 
+        <td>8.06</td> 
+        <td>6.35</td> 
+        <td>36.81</td> 
+        <td>25.49</td> 
+        <td>20.81</td>
+        <td><a href=exps/kitti-360/bev_height_plus_lss_r101_384_1280_256x256.py>config</td>
     </tr>
     
 <table>
@@ -149,7 +151,7 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td colspan="3" align=center>AP3D (IoU=0.5)</td>
         <td colspan="3" align=center>AP3D (IoU=0.25)</td>
         <td rowspan="3" align=center>config</td> 
-        <td rowspan="3" align=center>model pth</td>
+        <td rowspan="3" align=center>model ckpt</td>
     </tr>
     <tr align=center>
     </tr>
@@ -163,42 +165,43 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
     </tr>
     <tr align=center>
         <td>BEVDepth</td> 
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.17</td>
+        <td>42.01</td> 
+        <td>22.09</td> 
+        <td>30.52</td> 
+        <td>59.84</td> 
+        <td>45.18</td>
+        <td><a href=exps/kitti-360/bev_depth_lss_r101_384_1280_256x256.py>config</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td> 
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>1.78</td> 
+        <td>41.76</td> 
+        <td>21.77</td> 
+        <td>33.02</td> 
+        <td>56.69</td> 
+        <td>44.85</td>
+        <td><a href=exps/kitti-360/bev_height_lss_r101_384_1280_256x256.py>config</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td> 
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.35</td> 
+        <td>46.84</td> 
+        <td>24.59</td> 
+        <td>30.72</td> 
+        <td>65.78</td> 
+        <td>48.25</td>
+        <td><a href=exps/kitti-360/bev_height_plus_lss_r101_384_1280_256x256.py>config</td>
     </tr>
     
 <table>
 </div>
 
 - **Waymo Dataset**
+>* BEVDepth: <a href=exps/waymo/bev_depth_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model_ckpt</a>
+> * BEVHeight: <a href=exps/waymo/bev_height_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model_ckpt</a>
+>* BEVHeight++: <a href=exps/waymo/bev_height_plus_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model_ckpt</a>
+
 <div align=left>
 <table>
      <tr align=center>
@@ -207,8 +210,6 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td rowspan="3">Method</td> 
         <td colspan="4" align=center>AP3D</td>
         <td colspan="4" align=center>APH3D</td>
-        <td rowspan="3" align=center>config</td> 
-        <td rowspan="3" align=center>model pth</td>
     </tr>
     <tr align=center>
     </tr>
@@ -216,175 +217,151 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td>All</td>
         <td>0-30</td>
         <td>30-50</td>
-        <td>50- OO </td>
+        <td>50- $\infty$ </td>
         <td>All</td>
         <td>0-30</td>
         <td>30-50</td>
-        <td>50-OO</td>
+        <td>50- $\infty$	</td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.7</td> 
         <td rowspan="3">Level_1</td> 
         <td>BEVDepth</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.86</td>
+        <td>7.51</td>
+        <td>1.13</td>
+        <td>0.12</td>
+        <td>2.84</td>
+        <td>7.45</td>
+        <td>1.11</td>
+        <td>0.12</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.62</td>
+        <td>6.78</td>
+        <td>1.35</td>
+        <td>0.08</td>
+        <td>2.60</td>
+        <td>6.71</td>
+        <td>1.33</td>
+        <td>0.08</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>3.10</td>	
+        <td>8.04</td>	
+        <td>1.41</td>	
+        <td>0.13</td>	
+        <td>3.07</td>	
+        <td>7.96</td>	
+        <td>1.40</td>	
+        <td>0.13</td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.7</td> 
         <td rowspan="3">Level_2</td> 
         <td>BEVDepth</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.68</td>	
+        <td>7.50</td>	
+        <td>1.09</td>	
+        <td>0.10</td>	
+        <td>2.66</td>	
+        <td>7.43</td>	
+        <td>1.08</td>	
+        <td>0.10</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.46</td>	
+        <td>6.77</td>	
+        <td>1.30</td>	
+        <td>0.07</td>	
+        <td>2.44</td>	
+        <td>6.70</td>	
+        <td>1.29</td>	
+        <td>0.07</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>2.91</td>	
+        <td>8.03</td>	
+        <td>1.36</td>	
+        <td>0.12</td>	
+        <td>2.88</td>	
+        <td>7.95</td>	
+        <td>1.35</td>	
+        <td>0.11</td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.5</td> 
         <td rowspan="3">Level_1</td> 
         <td>BEVDepth</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>13.22</td>	
+        <td>31.67</td>	
+        <td>6.01</td>	
+        <td>1.43</td>	
+        <td>13.05</td>	
+        <td>31.27</td>	
+        <td>5.93</td>	
+        <td>1.41</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>12.73</td>	
+        <td>29.87</td>	
+        <td>5.90</td>	
+        <td>1.33</td>	
+        <td>12.55</td>	
+        <td>29.45</td>	
+        <td>5.83</td>	
+        <td>1.30</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>14.00</td>	
+        <td>32.59</td>	
+        <td>6.31</td>	
+        <td>1.86</td>	
+        <td>13.81</td>	
+        <td>32.16</td>	
+        <td>6.25</td>	
+        <td>1.83</td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.5</td> 
         <td rowspan="3">Level_2</td> 
         <td>BEVDepth</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>12.41</td>	
+        <td>31.61</td>	
+        <td>5.81</td>	
+        <td>1.25</td>	
+        <td>12.25</td>	
+        <td>31.21</td>	
+        <td>5.73</td>	
+        <td>1.23</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>11.95</td>	
+        <td>29.81</td>	
+        <td>5.70</td>	
+        <td>1.16</td>	
+        <td>11.78</td>	
+        <td>29.40</td>	
+        <td>5.63</td>	
+        <td>1.14</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><a href=exps/dair-v2x/bev_height_lss_r50_864_1536_128x128_102.py>R50_102</td>
-        <td><a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model</a></td>
+        <td>13.14</td>	
+        <td>32.53</td>	
+        <td>6.10</td>	
+        <td>1.62</td>	
+        <td>12.97</td>	
+        <td>32.10</td>	
+        <td>6.04</td>	
+        <td>1.59</td>
     </tr> 
 <table>
 </div>

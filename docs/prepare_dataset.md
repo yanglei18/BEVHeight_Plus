@@ -99,19 +99,13 @@ python scripts/gen_info_kitti.py --data_root data/kitti
 
 ## 4. KITTI-360 Dataset
 #### 4.1. Download KITTI-360 dataset from official [website](https://www.cvlibs.net/datasets/kitti-360/).
-
-#### 4.2. Convert the dataset to KITTI format.
-
-The directory will be as follows.
+#### 4.2. Download the processed KITTI-360 `train_val` and dummy `testing` [labels](https://drive.google.com/file/d/1h1VmHNdoIKRecJKANt1Wj_-nDNX_HCQG/view?usp=sharing). Extract them.
+#### 4.3. Arrange datasets as
 ```
 BEVHeight
 ├── data
 |   └── kitti-360
 |   |   ├── training
-|   |   |   ├── calib
-|   |   |   ├── label_2
-|   |   |   └── images_2
-|   |   ├── testing
 |   |   |   ├── calib
 |   |   |   ├── label_2
 |   |   |   └── images_2
@@ -122,7 +116,18 @@ BEVHeight
 |   |...  
 ├── ...
 ```
-#### 4.3. Prepare infos for KITTI-360 dataset.
+#### 4.4. Convert the dataset to KITTI format.
+```
+python data/kitti_360/calib_converter.py
+python data/kitti_360/bbox_converter.py
+
+# creat soft link
+ln -s data/kitti_360/train_val data/kitti_360/training
+ln -s data/kitti_360/training/label_2_converted data/kitti_360/training/label_2
+```
+
+
+#### 4.5. Prepare infos for KITTI-360 dataset.
 ```
 python scripts/gen_info_kitti.py --data_root data/kitti-360
 ```
