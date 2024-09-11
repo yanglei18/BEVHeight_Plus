@@ -27,7 +27,7 @@ final_dim = (864, 1536)
 img_conf = dict(img_mean=[123.675, 116.28, 103.53],
                 img_std=[58.395, 57.12, 57.375],
                 to_rgb=True)
-model_type = 1 # 0: BEVDepth, 1: BEVHeight, 2: BEVHeight++
+model_type = 0 # 0: BEVDepth, 1: BEVHeight, 2: BEVHeight++
 
 return_depth = False
 data_root = "data/dair-v2x-i/"

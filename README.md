@@ -43,7 +43,7 @@
 
 # News
 
-- [2024/06/30] Both arXiv and codebase are released!
+- [2024/09/06] Both arXiv and codebase are released!
 # Incoming
 
 - [ ] Release the pretrained models
@@ -118,6 +118,7 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td>23.22</td> 
         <td>19.33</td>
         <td><a href=exps/kitti-360/bev_depth_lss_r101_384_1280_256x256.py>config</td>
+        <td>\</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td> 
@@ -128,16 +129,18 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td>22.05</td> 
         <td>17.96</td>
         <td><a href=exps/kitti-360/bev_height_lss_r101_384_1280_256x256.py>config</td>
+        <td>\</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td> 
-        <td>11.37</td> 
-        <td>8.06</td> 
-        <td>6.35</td> 
-        <td>36.81</td> 
-        <td>25.49</td> 
-        <td>20.81</td>
+        <td><b>11.37</b></td> 
+        <td><b>8.06</b></td> 
+        <td><b>6.35</b></td> 
+        <td><b>36.81</b></td> 
+        <td><b>25.49</b></td> 
+        <td><b>20.81</b></td>
         <td><a href=exps/kitti-360/bev_height_plus_lss_r101_384_1280_256x256.py>config</td>
+        <td><a href="https://cloud.tsinghua.edu.cn/f/ebd15a0b604548dcb681/?dl=1">model_ckpt</td>  
     </tr>
     
 <table>
@@ -172,6 +175,7 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td>59.84</td> 
         <td>45.18</td>
         <td><a href=exps/kitti-360/bev_depth_lss_r101_384_1280_256x256.py>config</td>
+        <td><a href="https://cloud.tsinghua.edu.cn/f/ae5a4d38a0c34e6c9d37/?dl=1">model_ckpt</td>
     </tr>
     <tr align=center>
         <td>BEVHeight</td> 
@@ -182,25 +186,27 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td>56.69</td> 
         <td>44.85</td>
         <td><a href=exps/kitti-360/bev_height_lss_r101_384_1280_256x256.py>config</td>
+        <td><a href="https://cloud.tsinghua.edu.cn/f/4e75b226de404716a11f/?dl=1">model_ckpt</td>
     </tr>
     <tr align=center>
         <td>BEVHeight++</td> 
-        <td>2.35</td> 
-        <td>46.84</td> 
-        <td>24.59</td> 
-        <td>30.72</td> 
-        <td>65.78</td> 
-        <td>48.25</td>
+        <td><b>2.35</b></td> 
+        <td><b>46.84</b></td> 
+        <td><b>24.59</b></td> 
+        <td><b>30.72</b></td> 
+        <td><b>65.78</b></td> 
+        <td><b>48.25</b></td>
         <td><a href=exps/kitti-360/bev_height_plus_lss_r101_384_1280_256x256.py>config</td>
+        <td><a href="https://cloud.tsinghua.edu.cn/f/f407ebaedb794195aa36/?dl=1">model_ckpt</td>
     </tr>
     
 <table>
 </div>
 
 - **Waymo Dataset**
->* BEVDepth: <a href=exps/waymo/bev_depth_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model_ckpt</a>
-> * BEVHeight: <a href=exps/waymo/bev_height_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model_ckpt</a>
->* BEVHeight++: <a href=exps/waymo/bev_height_plus_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/6998b0b000aa45a0861e/?dl=1">model_ckpt</a>
+>* BEVDepth: <a href=exps/waymo/bev_depth_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/5fa168024899492d835a/?dl=1">model_ckpt</a>
+> * BEVHeight: <a href=exps/waymo/bev_height_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/5fa5fae419ed43959622/?dl=1">model_ckpt</a>
+>* BEVHeight++: <a href=exps/waymo/bev_height_plus_lss_r101_864_1536_256x256.py>config</a>,   <a href="https://cloud.tsinghua.edu.cn/f/f4be449a6fe04aa6806a/?dl=1">model_ckpt</a>
 
 <div align=left>
 <table>
@@ -249,14 +255,14 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td>3.10</td>	
-        <td>8.04</td>	
-        <td>1.41</td>	
-        <td>0.13</td>	
-        <td>3.07</td>	
-        <td>7.96</td>	
-        <td>1.40</td>	
-        <td>0.13</td>
+        <td><b>3.10</b></td>	
+        <td><b>8.04</b></td>	
+        <td><b>1.41</b></td>	
+        <td><b>0.13</b></td>	
+        <td><b>3.07</b></td>	
+        <td><b>7.96</b></td>	
+        <td><b>1.40</b></td>	
+        <td><b>0.13</b></td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.7</td> 
@@ -284,14 +290,14 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td>2.91</td>	
-        <td>8.03</td>	
-        <td>1.36</td>	
-        <td>0.12</td>	
-        <td>2.88</td>	
-        <td>7.95</td>	
-        <td>1.35</td>	
-        <td>0.11</td>
+        <td><b>2.91</b></td>	
+        <td><b>8.03</b></td>	
+        <td><b>1.36</b></td>	
+        <td><b>0.12</b></td>	
+        <td><b>2.88</b></td>	
+        <td><b>7.95</b></b></td>	
+        <td><b>1.35</b></td>	
+        <td><b>0.11</b></td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.5</td> 
@@ -319,14 +325,14 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td>14.00</td>	
-        <td>32.59</td>	
-        <td>6.31</td>	
-        <td>1.86</td>	
-        <td>13.81</td>	
-        <td>32.16</td>	
-        <td>6.25</td>	
-        <td>1.83</td>
+        <td><b>14.00</b></td>	
+        <td><b>32.59</b></td>	
+        <td><b>6.31</b></td>	
+        <td><b>1.86</b></td>	
+        <td><b>13.81</b></td>	
+        <td><b>32.16</b></td>	
+        <td><b>6.25</b></td>	
+        <td><b>1.83</b></td>
     </tr>
     <tr align=center>
         <td rowspan="3">0.5</td> 
@@ -354,14 +360,14 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
     </tr>
     <tr align=center>
         <td>BEVHeight++</td>
-        <td>13.14</td>	
-        <td>32.53</td>	
-        <td>6.10</td>	
-        <td>1.62</td>	
-        <td>12.97</td>	
-        <td>32.10</td>	
-        <td>6.04</td>	
-        <td>1.59</td>
+        <td><b>13.14</b></td>	
+        <td><b>32.53</b></td>	
+        <td><b>6.10</b></td>	
+        <td><b>1.62</b></td>	
+        <td><b>12.97</b></td>	
+        <td><b>32.10</b></td>	
+        <td><b>6.04</b></td>	
+        <td><b>1.59</b></td>
     </tr> 
 <table>
 </div>
