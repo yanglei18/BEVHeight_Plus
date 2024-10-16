@@ -8,32 +8,39 @@ import torch
 import torch.nn.parallel
 import torch.utils.data
 import torch.utils.data.distributed
+import torch.nn.functional as F
 import torchvision.models as models
 from pytorch_lightning.core import LightningModule
+from torch.cuda.amp.autocast_mode import autocast
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.optim.lr_scheduler import MultiStepLR
 
 from dataset.nusc_mv_det_dataset import NuscMVDetDataset, collate_fn
 from evaluators.det_evaluators import RoadSideEvaluator
-from models.bev_height import BEVHeight
+from models.bev_height_plus import BEVHeightPlus
 from utils.torch_dist import all_gather_object, get_rank, synchronize
 from utils.backup_files import backup_codebase
 
-H = 1080
+H = 1280
 W = 1920
-final_dim = (864, 1536)
+final_dim = (1024, 1536)
 img_conf = dict(img_mean=[123.675, 116.28, 103.53],
                 img_std=[58.395, 57.12, 57.375],
                 to_rgb=True)
+model_type = 2 # 0: BEVDepth, 1: BEVHeight, 2: BEVHeight++
 
-data_root = "data/rope3d/"
-gt_label_path = "data/rope3d-kitti/training/label_2"
-
+return_depth = False
+data_root = "data/waymo-kitti/"
+gt_label_path = "data/waymo-kitti/validation/label_2"
+bev_dim = 160 if model_type==2 else 80
+ 
 backbone_conf = {
-    'x_bound': [0, 140.8, 0.8],
-    'y_bound': [-70.4, 70.4, 0.8],
+    'x_bound': [0, 102.4, 0.4],
+    'y_bound': [-51.2, 51.2, 0.4],
     'z_bound': [-5, 3, 8],
-    'd_bound': [-1.5, 3.0, 180],
+    'd_bound': [1.0, 102.0, 0.5],
+    'h_bound': [-5.0, 3.0, 80],
+    'model_type': model_type,
     'final_dim':
     final_dim,
     'output_channels':
@@ -43,11 +50,11 @@ backbone_conf = {
     'img_backbone_conf':
     dict(
         type='ResNet',
-        depth=50,
+        depth=101,
         frozen_stages=0,
         out_indices=[0, 1, 2, 3],
         norm_eval=False,
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50'),
+        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet101'),
     ),
     'img_neck_conf':
     dict(
@@ -73,41 +80,42 @@ ida_aug_conf = {
 
 bev_backbone = dict(
     type='ResNet',
-    in_channels=80,
+    in_channels = bev_dim,
     depth=18,
     num_stages=3,
     strides=(1, 2, 2),
     dilations=(1, 1, 1),
     out_indices=[0, 1, 2],
     norm_eval=False,
-    base_channels=160,
+    base_channels= bev_dim * 2,
 )
 
 bev_neck = dict(type='SECONDFPN',
-                in_channels=[80, 160, 320, 640],
+                in_channels=[bev_dim, bev_dim * 2, bev_dim * 4, bev_dim * 8],
                 upsample_strides=[1, 2, 4, 8],
                 out_channels=[64, 64, 64, 64])
 
 CLASSES = [
     'car',
-    'truck',
-    'construction_vehicle',
-    'bus',
-    'trailer',
-    'barrier',
-    'motorcycle',
-    'bicycle',
-    'pedestrian',
-    'traffic_cone',
+    # 'truck',
+    # 'construction_vehicle',
+    # 'bus',
+    # 'trailer',
+    # 'barrier',
+    # 'motorcycle',
+    # 'bicycle',
+    # 'pedestrian',
+    # 'traffic_cone',
 ]
 
 TASKS = [
     dict(num_class=1, class_names=['car']),
-    dict(num_class=2, class_names=['truck', 'construction_vehicle']),
-    dict(num_class=2, class_names=['bus', 'trailer']),
-    dict(num_class=1, class_names=['barrier']),
-    dict(num_class=2, class_names=['motorcycle', 'bicycle']),
-    dict(num_class=2, class_names=['pedestrian', 'traffic_cone']),
+    # dict(num_class=2, class_names=['truck', 'construction_vehicle']),
+    # dict(num_class=2, class_names=['bus', 'trailer']),
+    # dict(num_class=1, class_names=['barrier']),
+    # dict(num_class=2, class_names=['motorcycle', 'bicycle']),
+    # dict(num_class=1, class_names=['pedestrian']),
+    # dict(num_class=1, class_names=['bicycle']),
 ]
 
 common_heads = dict(reg=(2, 2),
@@ -118,19 +126,19 @@ common_heads = dict(reg=(2, 2),
 
 bbox_coder = dict(
     type='CenterPointBBoxCoder',
-    post_center_range=[0.0, -70.4, -10.0, 140.8, 70.4, 10.0],
+    post_center_range=[0.0, -51.2, -10.0, 102.4, 51.2, 10.0],
     max_num=500,
     score_threshold=0.1,
     out_size_factor=4,
-    voxel_size=[0.2, 0.2, 8],
-    pc_range=[0, -70.4, -5, 140.8, 70.4, 3],
+    voxel_size=[0.1, 0.1, 8],
+    pc_range=[0, -51.2, -5, 102.4, 51.2, 3],
     code_size=9,
 )
 
 train_cfg = dict(
-    point_cloud_range=[0, -70.4, -5, 140.8, 70.4, 3],
-    grid_size=[704, 704, 1],
-    voxel_size=[0.2, 0.2, 8],
+    point_cloud_range=[0, -51.2, -5, 102.4, 51.2, 3],
+    grid_size=[1024, 1024, 1],
+    voxel_size=[0.1, 0.1, 8],
     out_size_factor=4,
     dense_reg=1,
     gaussian_overlap=0.1,
@@ -140,13 +148,13 @@ train_cfg = dict(
 )
 
 test_cfg = dict(
-    post_center_limit_range=[0.0, -70.4, -10.0, 140.8, 70.4, 10.0],
+    post_center_limit_range=[0.0, -51.2, -10.0, 102.4, 51.2, 10.0],
     max_per_img=500,
     max_pool_nms=False,
     min_radius=[4, 12, 10, 1, 0.85, 0.175],
     score_threshold=0.1,
     out_size_factor=4,
-    voxel_size=[0.2, 0.2, 8],
+    voxel_size=[0.1, 0.1, 8],
     nms_type='circle',
     pre_max_size=1000,
     post_max_size=83,
@@ -168,8 +176,7 @@ head_conf = {
     'min_radius': 2,
 }
 
-
-class BEVHeightLightningModel(LightningModule):
+class BEVHeightPlusLightningModel(LightningModule):
     MODEL_NAMES = sorted(name for name in models.__dict__
                          if name.islower() and not name.startswith('__')
                          and callable(models.__dict__[name]))
@@ -196,45 +203,177 @@ class BEVHeightLightningModel(LightningModule):
         self.backbone_conf = backbone_conf
         self.head_conf = head_conf
         self.ida_aug_conf = ida_aug_conf
+        self.return_depth = return_depth
         mmcv.mkdir_or_exist(default_root_dir)
         self.default_root_dir = default_root_dir
         self.evaluator = RoadSideEvaluator(class_names=self.class_names,
-                                           current_classes=["Car", "Bus"],
+                                           current_classes=["Car", "Pedestrian", "Cyclist"],
                                            data_root=data_root,
                                            gt_label_path=gt_label_path,
                                            output_dir=self.default_root_dir)
-        self.model = BEVHeight(self.backbone_conf, self.head_conf)
+        self.model = BEVHeightPlus(self.backbone_conf, self.head_conf, is_train_height=self.return_depth)
         self.mode = 'valid'
         self.img_conf = img_conf
         self.data_use_cbgs = False
         self.num_sweeps = 1
         self.sweep_idxes = list()
         self.key_idxes = list()
-        self.up_stride = 8
-        self.downsample_factor = self.backbone_conf['downsample_factor'] // self.up_stride
+        self.downsample_factor = self.backbone_conf['downsample_factor']
         self.dbound = self.backbone_conf['d_bound']
-        self.height_channels = int(self.dbound[2])
-
+        self.hbound = self.backbone_conf['h_bound']
+        self.height_channels = int(self.hbound[2])
+        self.depth_channels = int((self.dbound[1] - self.dbound[0]) / self.dbound[2])
+    
     def forward(self, sweep_imgs, mats):
         return self.model(sweep_imgs, mats)
 
     def training_step(self, batch):
-        (sweep_imgs, mats, _, _, gt_boxes, gt_labels) = batch
+        if self.return_depth:
+            (sweep_imgs, mats, timestamps, img_metas, gt_boxes, gt_labels, depth_labels, height_labels) = batch
+        else:
+            (sweep_imgs, mats, timestamps, img_metas, gt_boxes, gt_labels) = batch
+        
         if torch.cuda.is_available():
             for key, value in mats.items():
                 mats[key] = value.cuda()
+            
             sweep_imgs = sweep_imgs.cuda()
             gt_boxes = [gt_box.cuda() for gt_box in gt_boxes]
             gt_labels = [gt_label.cuda() for gt_label in gt_labels]
-        preds = self(sweep_imgs, mats)
+
+        if self.return_depth:
+            if model_type == 0:
+                preds, depth_preds = self(sweep_imgs, mats)
+                depth_preds = depth_preds[0]
+            elif model_type == 1:
+                preds, height_preds = self(sweep_imgs, mats)
+                height_preds = height_preds[0]
+            elif model_type == 2:
+                preds, geometry_preds = self(sweep_imgs, mats)
+                depth_preds, height_preds = geometry_preds[0], geometry_preds[1]
+        else:
+            preds = self(sweep_imgs, mats)
         if isinstance(self.model, torch.nn.parallel.DistributedDataParallel):
             targets = self.model.module.get_targets(gt_boxes, gt_labels)
             detection_loss = self.model.module.loss(targets, preds)
         else:
             targets = self.model.get_targets(gt_boxes, gt_labels)
-            detection_loss = self.model.loss(targets, preds)  
+            detection_loss = self.model.loss(targets, preds)
         self.log('detection_loss', detection_loss)
-        return detection_loss
+        if self.return_depth:
+            if len(depth_labels.shape) == 5 and model_type in [0, 2]:
+                depth_labels = depth_labels[:, 0, ...]
+            if len(height_labels.shape) == 5 and model_type in [1, 2]:
+                height_labels = height_labels[:, 0, ...]
+            if model_type == 0:
+                depth_loss = self.get_depth_loss(depth_labels.cuda(), depth_preds)
+                self.log('depth_loss', depth_loss)
+                return detection_loss + depth_loss
+            elif model_type == 1:
+                height_loss = self.get_height_loss(height_labels.cuda(), height_preds)
+                self.log('height_loss', height_loss)
+                return detection_loss + height_loss
+            elif model_type == 2:
+                depth_loss = self.get_depth_loss(depth_labels.cuda(), depth_preds)
+                height_loss = self.get_height_loss(height_labels.cuda(), height_preds)
+                self.log('depth_loss', depth_loss)
+                self.log('height_loss', height_loss)
+                return detection_loss + depth_loss + height_loss
+        else:
+            return detection_loss
+
+    def get_depth_loss(self, depth_labels, depth_preds):
+        depth_labels = self.get_downsampled_gt_depth(depth_labels)
+        depth_preds = depth_preds.permute(0, 2, 3, 1).contiguous().view(
+            -1, self.depth_channels)
+        fg_mask = torch.max(depth_labels, dim=1).values > 0.0
+
+        with autocast(enabled=False):
+            depth_loss = (F.binary_cross_entropy(
+                depth_preds[fg_mask],
+                depth_labels[fg_mask],
+                reduction='none',
+            ).sum() / max(1.0, fg_mask.sum()))
+
+        return 3.0 * depth_loss
+
+    def get_height_loss(self, height_labels, height_preds):
+        height_labels = self.get_downsampled_gt_height(height_labels)
+        height_preds = height_preds.permute(0, 2, 3, 1).contiguous().view(
+            -1, self.height_channels)
+        fg_mask = torch.max(height_labels, dim=1).values > 0.0
+        with autocast(enabled=False):
+            height_loss = (F.binary_cross_entropy(
+                height_preds[fg_mask],
+                height_labels[fg_mask],
+                reduction='none',
+            ).sum() / max(1.0, fg_mask.sum()))
+
+        return 3.0 * height_loss
+    
+    def get_downsampled_gt_height(self, gt_heights):
+        """
+        Input:
+            gt_heights: [B, N, H, W]
+        Output:
+            gt_heights: [B*N*h*w, d]
+        """
+        B, N, H, W = gt_heights.shape
+        gt_heights = gt_heights.view(B * N, H // self.downsample_factor,
+                                   self.downsample_factor, W // self.downsample_factor,
+                                   self.downsample_factor, 1)
+        gt_heights = gt_heights.permute(0, 1, 3, 5, 2, 4).contiguous()
+        gt_heights = gt_heights.view(-1, self.downsample_factor * self.downsample_factor)
+        
+        gt_heights_tmp = torch.where(gt_heights == 0.0,
+                                    1e5 * torch.ones_like(gt_heights),
+                                    gt_heights)
+        gt_heights = torch.min(gt_heights_tmp, dim=-1).values
+        gt_heights = gt_heights.view(B * N, H // self.downsample_factor,
+                                   W // self.downsample_factor)
+        gt_heights = torch.floor((gt_heights - self.hbound[0]) * self.hbound[2] / (self.hbound[1] - self.hbound[0]))
+        gt_heights = torch.where((gt_heights < self.height_channels + 1) & (gt_heights >= 0.0),
+                                gt_heights, torch.zeros_like(gt_heights))
+        gt_heights = F.one_hot(
+            gt_heights.long(), num_classes=self.height_channels + 1).view(-1, self.height_channels + 1)[:, 1:]
+        return gt_heights.float()
+
+    def get_downsampled_gt_depth(self, gt_depths):
+        """
+        Input:
+            gt_depths: [B, N, H, W]
+        Output:
+            gt_depths: [B*N*h*w, d]
+        """
+        B, N, H, W = gt_depths.shape
+        gt_depths = gt_depths.view(
+            B * N,
+            H // self.downsample_factor,
+            self.downsample_factor,
+            W // self.downsample_factor,
+            self.downsample_factor,
+            1,
+        )
+        gt_depths = gt_depths.permute(0, 1, 3, 5, 2, 4).contiguous()
+        gt_depths = gt_depths.view(
+            -1, self.downsample_factor * self.downsample_factor)
+        gt_depths_tmp = torch.where(gt_depths == 0.0,
+                                    1e5 * torch.ones_like(gt_depths),
+                                    gt_depths)
+        gt_depths = torch.min(gt_depths_tmp, dim=-1).values
+        gt_depths = gt_depths.view(B * N, H // self.downsample_factor,
+                                   W // self.downsample_factor)
+
+        gt_depths = (gt_depths -
+                     (self.dbound[0] - self.dbound[2])) / self.dbound[2]
+        gt_depths = torch.where(
+            (gt_depths < self.depth_channels + 1) & (gt_depths >= 0.0),
+            gt_depths, torch.zeros_like(gt_depths))
+        gt_depths = F.one_hot(gt_depths.long(),
+                              num_classes=self.depth_channels + 1).view(
+                                  -1, self.depth_channels + 1)[:, 1:]
+
+        return gt_depths.float()
 
     def eval_step(self, batch, batch_idx, prefix: str):
         (sweep_imgs, mats, _, img_metas, _, _) = batch
@@ -306,14 +445,14 @@ class BEVHeightLightningModel(LightningModule):
             ida_aug_conf=self.ida_aug_conf,
             classes=self.class_names,
             data_root=self.data_root,
-            info_path=os.path.join(data_root, 'rope3d_12hz_infos_hom_train.pkl'),
+            info_path=os.path.join(data_root, 'waymo-kitti_12hz_infos_train.pkl'),
             is_train=True,
             use_cbgs=self.data_use_cbgs,
             img_conf=self.img_conf,
             num_sweeps=self.num_sweeps,
             sweep_idxes=self.sweep_idxes,
             key_idxes=self.key_idxes,
-            return_depth=False,
+            return_depth=self.return_depth,
         )
         from functools import partial
 
@@ -324,7 +463,7 @@ class BEVHeightLightningModel(LightningModule):
             drop_last=True,
             shuffle=False,
             collate_fn=partial(collate_fn,
-                               is_return_depth=False),
+                               is_return_depth=self.return_depth),
             sampler=None,
         )
         return train_loader
@@ -334,7 +473,7 @@ class BEVHeightLightningModel(LightningModule):
             ida_aug_conf=self.ida_aug_conf,
             classes=self.class_names,
             data_root=self.data_root,
-            info_path=os.path.join(data_root, 'rope3d_12hz_infos_hom_val.pkl'),
+            info_path=os.path.join(data_root, 'waymo-kitti_12hz_infos_val.pkl'),
             is_train=False,
             img_conf=self.img_conf,
             num_sweeps=self.num_sweeps,
@@ -367,15 +506,15 @@ def main(args: Namespace) -> None:
         pl.seed_everything(args.seed)
     print(args)
     
-    model = BEVHeightLightningModel(**vars(args))
-    checkpoint_callback = ModelCheckpoint(dirpath='./outputs/bev_height_lss_r50_864_1536_128x128/checkpoints', filename='{epoch}', every_n_epochs=5, save_last=True, save_top_k=-1)
+    model = BEVHeightPlusLightningModel(**vars(args))
+    checkpoint_callback = ModelCheckpoint(dirpath='./outputs/bev_height_plus_lss_r101_1024_1536_256x256/checkpoints', filename='{epoch}', every_n_epochs=3, save_last=True, save_top_k=-1)
     trainer = pl.Trainer.from_argparse_args(args, callbacks=[checkpoint_callback])
     if args.evaluate:
         for ckpt_name in os.listdir(args.ckpt_path):
             model_pth = os.path.join(args.ckpt_path, ckpt_name)
             trainer.test(model, ckpt_path=model_pth)
     else:
-        backup_codebase(os.path.join('./outputs/bev_height_lss_r50_864_1536_128x128', 'backup'))
+        backup_codebase(os.path.join('./outputs/bev_height_plus_lss_r101_1024_1536_256x256', 'backup'))
         trainer.fit(model)
         
 def run_cli():
@@ -392,18 +531,18 @@ def run_cli():
                                default=0,
                                help='seed for initializing training.')
     parent_parser.add_argument('--ckpt_path', type=str)
-    parser = BEVHeightLightningModel.add_model_specific_args(parent_parser)
+    parser = BEVHeightPlusLightningModel.add_model_specific_args(parent_parser)
     parser.set_defaults(
         profiler='simple',
         deterministic=False,
-        max_epochs=20,
+        max_epochs=30,
         accelerator='ddp',
         num_sanity_val_steps=0,
         gradient_clip_val=5,
         limit_val_batches=0,
         enable_checkpointing=True,
         precision=32,
-        default_root_dir='./outputs/bev_height_lss_r50_864_1536_128x128')
+        default_root_dir='./outputs/bev_height_plus_lss_r101_1024_1536_256x256')
     args = parser.parse_args()
     main(args)
 

@@ -61,4 +61,4 @@ def backup_codebase(backup_folder):
     sync_root(backup_folder)
     import shutil
     shutil.copy2("setup.py", backup_folder)
-    shutil.copy2("train_script.sh", backup_folder)
+    # shutil.copy2("train_script.sh", backup_folder)

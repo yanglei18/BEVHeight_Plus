@@ -23,7 +23,7 @@ python setup.py install
 ```shell
 pip install -r requirements.txt
 ```
-**e.** Install BEVHeight (gpu required).
+**e.** Install BEVHeight_Plus (gpu required).
 ```shell
 python setup.py develop
 ```

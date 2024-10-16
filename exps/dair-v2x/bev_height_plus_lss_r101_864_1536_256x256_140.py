@@ -17,7 +17,7 @@ from torch.optim.lr_scheduler import MultiStepLR
 
 from dataset.nusc_mv_det_dataset import NuscMVDetDataset, collate_fn
 from evaluators.det_evaluators import RoadSideEvaluator
-from models.bev_height import BEVHeight
+from models.bev_height_plus import BEVHeightPlus
 from utils.torch_dist import all_gather_object, get_rank, synchronize
 from utils.backup_files import backup_codebase
 
@@ -176,7 +176,7 @@ head_conf = {
     'min_radius': 2,
 }
 
-class BEVHeightLightningModel(LightningModule):
+class BEVHeightPlusLightningModel(LightningModule):
     MODEL_NAMES = sorted(name for name in models.__dict__
                          if name.islower() and not name.startswith('__')
                          and callable(models.__dict__[name]))
@@ -210,7 +210,7 @@ class BEVHeightLightningModel(LightningModule):
                                            data_root=data_root,
                                            gt_label_path=gt_label_path,
                                            output_dir=self.default_root_dir)
-        self.model = BEVHeight(self.backbone_conf, self.head_conf, is_train_height=return_depth)
+        self.model = BEVHeightPlus(self.backbone_conf, self.head_conf, is_train_height=return_depth)
         self.mode = 'valid'
         self.img_conf = img_conf
         self.data_use_cbgs = False
@@ -507,19 +507,19 @@ def main(args: Namespace) -> None:
         pl.seed_everything(args.seed)
     print(args)
     
-    model = BEVHeightLightningModel(**vars(args))
-    checkpoint_callback = ModelCheckpoint(dirpath='./outputs/bev_height_lss_r101_864_1536_256x256_140/checkpoints', filename='{epoch}', every_n_epochs=5, save_last=True, save_top_k=-1)
+    model = BEVHeightPlusLightningModel(**vars(args))
+    checkpoint_callback = ModelCheckpoint(dirpath='./outputs/bev_height_plus_lss_r101_864_1536_256x256_140/checkpoints', filename='{epoch}', every_n_epochs=5, save_last=True, save_top_k=-1)
     trainer = pl.Trainer.from_argparse_args(args, callbacks=[checkpoint_callback])
     if args.evaluate:
         for ckpt_name in os.listdir(args.ckpt_path):
             model_pth = os.path.join(args.ckpt_path, ckpt_name)
             trainer.test(model, ckpt_path=model_pth)
     else:
-        backup_codebase(os.path.join('./outputs/bev_height_lss_r101_864_1536_256x256_140', 'backup'))
+        backup_codebase(os.path.join('./outputs/bev_height_plus_lss_r101_864_1536_256x256_140', 'backup'))
         '''
         if os.path.exists("pretrain_ckpt/last.ckpt"):
             print("load checkpoints")
-            model = BEVHeightLightningModel.load_from_checkpoint("pretrain_ckpt/last.ckpt")
+            model = BEVHeightPlusLightningModel.load_from_checkpoint("pretrain_ckpt/last.ckpt")
         '''
         trainer.fit(model)
         
@@ -537,7 +537,7 @@ def run_cli():
                                default=0,
                                help='seed for initializing training.')
     parent_parser.add_argument('--ckpt_path', type=str)
-    parser = BEVHeightLightningModel.add_model_specific_args(parent_parser)
+    parser = BEVHeightPlusLightningModel.add_model_specific_args(parent_parser)
     parser.set_defaults(
         profiler='simple',
         deterministic=False,
@@ -548,7 +548,7 @@ def run_cli():
         limit_val_batches=0,
         enable_checkpointing=True,
         precision=32,
-        default_root_dir='./outputs/bev_height_lss_r101_864_1536_256x256_140')
+        default_root_dir='./outputs/bev_height_plus_lss_r101_864_1536_256x256_140')
     args = parser.parse_args()
     main(args)
 

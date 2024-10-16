@@ -317,11 +317,11 @@ if __name__ == '__main__':
     # gt_dir is the folder in which validation_org folder (generated waymo label in kitti format) is located.
     gt_dir = folder_path #os.path.join(folder_path, 'validation/label' )
     
-    gt_dir = "/home/yanglei/BEVHeight/data/waymo-kitti"
-    # pd_dir = "/home/yanglei/BEVHeight/data/waymo-kitti/validation/label_2"
-    pd_dir = "/home/yanglei/BEVHeight/outputs/data"
+    gt_dir = "/home/yanglei/BEVHeight_Plus/data/waymo-kitti"
+    # pd_dir = "/home/yanglei/BEVHeight_Plus/data/waymo-kitti/validation/label_2"
+    pd_dir = "/home/yanglei/BEVHeight_Plus/outputs/data"
     gt_set = "/home/yanglei/format_shift/DEVIANT/data/waymo/ImageSets/val_org.txt"
-    pd_set = "/home/yanglei/BEVHeight/data/waymo-kitti/ImageSets/val.txt"
+    pd_set = "/home/yanglei/BEVHeight_Plus/data/waymo-kitti/ImageSets/val.txt"
 
     tf.compat.v1.disable_eager_execution()
     tf.test.main()

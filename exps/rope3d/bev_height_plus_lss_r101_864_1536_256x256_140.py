@@ -17,29 +17,30 @@ from torch.optim.lr_scheduler import MultiStepLR
 
 from dataset.nusc_mv_det_dataset import NuscMVDetDataset, collate_fn
 from evaluators.det_evaluators import RoadSideEvaluator
-from models.bev_height import BEVHeight
+from models.bev_height_plus import BEVHeightPlus
 from utils.torch_dist import all_gather_object, get_rank, synchronize
 from utils.backup_files import backup_codebase
 
-H = 1280
+H = 1080
 W = 1920
-final_dim = (1024, 1536)
+final_dim = (864, 1536)
 img_conf = dict(img_mean=[123.675, 116.28, 103.53],
                 img_std=[58.395, 57.12, 57.375],
                 to_rgb=True)
-model_type = 1 # 0: BEVDepth, 1: BEVHeight, 2: BEVHeight++
+model_type = 2 # 0: BEVDepth, 1: BEVHeight, 2: BEVHeight++
 
 return_depth = False
-data_root = "data/waymo-kitti/"
-gt_label_path = "data/waymo-kitti/validation/label_2"
+data_root = "data/rope3d/"
+gt_label_path = "data/rope3d-kitti/training/label_2"
+
 bev_dim = 160 if model_type==2 else 80
  
 backbone_conf = {
-    'x_bound': [0, 102.4, 0.4],
-    'y_bound': [-51.2, 51.2, 0.4],
+    'x_bound': [0, 140.8, 0.4],
+    'y_bound': [-70.4, 70.4, 0.4],
     'z_bound': [-5, 3, 8],
     'd_bound': [1.0, 102.0, 0.5],
-    'h_bound': [-5.0, 3.0, 80],
+    'h_bound': [-1.5, 3.0, 80],
     'model_type': model_type,
     'final_dim':
     final_dim,
@@ -97,25 +98,24 @@ bev_neck = dict(type='SECONDFPN',
 
 CLASSES = [
     'car',
-    # 'truck',
-    # 'construction_vehicle',
-    # 'bus',
-    # 'trailer',
-    # 'barrier',
-    # 'motorcycle',
-    # 'bicycle',
-    # 'pedestrian',
-    # 'traffic_cone',
+    'truck',
+    'construction_vehicle',
+    'bus',
+    'trailer',
+    'barrier',
+    'motorcycle',
+    'bicycle',
+    'pedestrian',
+    'traffic_cone',
 ]
 
 TASKS = [
     dict(num_class=1, class_names=['car']),
-    # dict(num_class=2, class_names=['truck', 'construction_vehicle']),
-    # dict(num_class=2, class_names=['bus', 'trailer']),
-    # dict(num_class=1, class_names=['barrier']),
-    # dict(num_class=2, class_names=['motorcycle', 'bicycle']),
-    # dict(num_class=1, class_names=['pedestrian']),
-    # dict(num_class=1, class_names=['bicycle']),
+    dict(num_class=2, class_names=['truck', 'construction_vehicle']),
+    dict(num_class=2, class_names=['bus', 'trailer']),
+    dict(num_class=1, class_names=['barrier']),
+    dict(num_class=2, class_names=['motorcycle', 'bicycle']),
+    dict(num_class=2, class_names=['pedestrian', 'traffic_cone']),
 ]
 
 common_heads = dict(reg=(2, 2),
@@ -126,18 +126,18 @@ common_heads = dict(reg=(2, 2),
 
 bbox_coder = dict(
     type='CenterPointBBoxCoder',
-    post_center_range=[0.0, -51.2, -10.0, 102.4, 51.2, 10.0],
+    post_center_range=[0.0, -70.4, -10.0, 140.8, 70.4, 10.0],
     max_num=500,
     score_threshold=0.1,
     out_size_factor=4,
     voxel_size=[0.1, 0.1, 8],
-    pc_range=[0, -51.2, -5, 102.4, 51.2, 3],
+    pc_range=[0, -70.4, -5, 140.8, 70.4, 3],
     code_size=9,
 )
 
 train_cfg = dict(
-    point_cloud_range=[0, -51.2, -5, 102.4, 51.2, 3],
-    grid_size=[1024, 1024, 1],
+    point_cloud_range=[0, -70.4, -5, 140.8, 70.4, 3],
+    grid_size=[1408, 1408, 1],
     voxel_size=[0.1, 0.1, 8],
     out_size_factor=4,
     dense_reg=1,
@@ -148,7 +148,7 @@ train_cfg = dict(
 )
 
 test_cfg = dict(
-    post_center_limit_range=[0.0, -51.2, -10.0, 102.4, 51.2, 10.0],
+    post_center_limit_range=[0.0, -70.4, -10.0, 140.8, 70.4, 10.0],
     max_per_img=500,
     max_pool_nms=False,
     min_radius=[4, 12, 10, 1, 0.85, 0.175],
@@ -176,7 +176,7 @@ head_conf = {
     'min_radius': 2,
 }
 
-class BEVHeightLightningModel(LightningModule):
+class BEVHeightPlusLightningModel(LightningModule):
     MODEL_NAMES = sorted(name for name in models.__dict__
                          if name.islower() and not name.startswith('__')
                          and callable(models.__dict__[name]))
@@ -203,15 +203,14 @@ class BEVHeightLightningModel(LightningModule):
         self.backbone_conf = backbone_conf
         self.head_conf = head_conf
         self.ida_aug_conf = ida_aug_conf
-        self.return_depth = return_depth
         mmcv.mkdir_or_exist(default_root_dir)
         self.default_root_dir = default_root_dir
         self.evaluator = RoadSideEvaluator(class_names=self.class_names,
-                                           current_classes=["Car", "Pedestrian", "Cyclist"],
+                                           current_classes=["Car", "Bus"],
                                            data_root=data_root,
                                            gt_label_path=gt_label_path,
                                            output_dir=self.default_root_dir)
-        self.model = BEVHeight(self.backbone_conf, self.head_conf, is_train_height=self.return_depth)
+        self.model = BEVHeightPlus(self.backbone_conf, self.head_conf, is_train_height=return_depth)
         self.mode = 'valid'
         self.img_conf = img_conf
         self.data_use_cbgs = False
@@ -223,7 +222,9 @@ class BEVHeightLightningModel(LightningModule):
         self.hbound = self.backbone_conf['h_bound']
         self.height_channels = int(self.hbound[2])
         self.depth_channels = int((self.dbound[1] - self.dbound[0]) / self.dbound[2])
-    
+        self.return_depth = return_depth
+        self.val_list = [x.strip() for x in open(os.path.join("data/rope3d-kitti", "ImageSets",  "val.txt")).readlines()]
+
     def forward(self, sweep_imgs, mats):
         return self.model(sweep_imgs, mats)
 
@@ -445,7 +446,7 @@ class BEVHeightLightningModel(LightningModule):
             ida_aug_conf=self.ida_aug_conf,
             classes=self.class_names,
             data_root=self.data_root,
-            info_path=os.path.join(data_root, 'waymo-kitti_12hz_infos_train.pkl'),
+            info_path=os.path.join(data_root, 'rope3d_12hz_infos_hom_train.pkl'),
             is_train=True,
             use_cbgs=self.data_use_cbgs,
             img_conf=self.img_conf,
@@ -473,7 +474,7 @@ class BEVHeightLightningModel(LightningModule):
             ida_aug_conf=self.ida_aug_conf,
             classes=self.class_names,
             data_root=self.data_root,
-            info_path=os.path.join(data_root, 'waymo-kitti_12hz_infos_val.pkl'),
+            info_path=os.path.join(data_root, 'rope3d_12hz_infos_hom_val.pkl'),
             is_train=False,
             img_conf=self.img_conf,
             num_sweeps=self.num_sweeps,
@@ -506,15 +507,20 @@ def main(args: Namespace) -> None:
         pl.seed_everything(args.seed)
     print(args)
     
-    model = BEVHeightLightningModel(**vars(args))
-    checkpoint_callback = ModelCheckpoint(dirpath='./outputs/bev_height_lss_r101_864_1536_256x256/checkpoints', filename='{epoch}', every_n_epochs=3, save_last=True, save_top_k=-1)
+    model = BEVHeightPlusLightningModel(**vars(args))
+    checkpoint_callback = ModelCheckpoint(dirpath='./outputs/bev_height_plus_lss_r101_864_1536_256x256_140/checkpoints', filename='{epoch}', every_n_epochs=5, save_last=True, save_top_k=-1)
     trainer = pl.Trainer.from_argparse_args(args, callbacks=[checkpoint_callback])
     if args.evaluate:
         for ckpt_name in os.listdir(args.ckpt_path):
             model_pth = os.path.join(args.ckpt_path, ckpt_name)
             trainer.test(model, ckpt_path=model_pth)
     else:
-        backup_codebase(os.path.join('./outputs/bev_height_lss_r101_864_1536_256x256', 'backup'))
+        backup_codebase(os.path.join('./outputs/bev_height_plus_lss_r101_864_1536_256x256_140', 'backup'))
+        '''
+        if os.path.exists("pretrain_ckpt/last.ckpt"):
+            print("load checkpoints")
+            model = BEVHeightPlusLightningModel.load_from_checkpoint("pretrain_ckpt/last.ckpt")
+        '''
         trainer.fit(model)
         
 def run_cli():
@@ -531,18 +537,18 @@ def run_cli():
                                default=0,
                                help='seed for initializing training.')
     parent_parser.add_argument('--ckpt_path', type=str)
-    parser = BEVHeightLightningModel.add_model_specific_args(parent_parser)
+    parser = BEVHeightPlusLightningModel.add_model_specific_args(parent_parser)
     parser.set_defaults(
         profiler='simple',
         deterministic=False,
-        max_epochs=30,
+        max_epochs=60,
         accelerator='ddp',
         num_sanity_val_steps=0,
         gradient_clip_val=5,
         limit_val_batches=0,
         enable_checkpointing=True,
         precision=32,
-        default_root_dir='./outputs/bev_height_lss_r101_864_1536_256x256')
+        default_root_dir='./outputs/bev_height_plus_lss_r101_864_1536_256x256_140')
     args = parser.parse_args()
     main(args)
 

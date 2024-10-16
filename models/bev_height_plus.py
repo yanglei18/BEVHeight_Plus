@@ -3,10 +3,10 @@ from torch import nn
 from layers.backbones.lss_fpn import LSSFPN
 from layers.heads.bev_height_head import BEVHeightHead
 
-__all__ = ['BEVHeight']
+__all__ = ['BEVHeightPlus']
 
 
-class BEVHeight(nn.Module):
+class BEVHeightPlus(nn.Module):
     """
     Args:
         backbone_conf (dict): Config of backbone.
@@ -17,7 +17,7 @@ class BEVHeight(nn.Module):
 
     # TODO: Reduce grid_conf and data_aug_conf
     def __init__(self, backbone_conf, head_conf, is_train_height=False):
-        super(BEVHeight, self).__init__()
+        super(BEVHeightPlus, self).__init__()
         self.backbone = LSSFPN(**backbone_conf)
         self.head = BEVHeightHead(**head_conf)
         self.is_train_height = is_train_height
@@ -28,7 +28,7 @@ class BEVHeight(nn.Module):
         mats_dict,
         timestamps=None,
     ):
-        """Forward function for BEVHeight
+        """Forward function for BEVHeightPlus
 
         Args:
             x (Tensor): Input ferature map.
@@ -84,7 +84,7 @@ class BEVHeight(nn.Module):
         return self.head.get_targets(gt_boxes, gt_labels)
 
     def loss(self, targets, preds_dicts):
-        """Loss function for BEVHeight.
+        """Loss function for BEVHeightPlus.
 
         Args:
             gt_bboxes_3d (list[:obj:`LiDARInstance3DBoxes`]): Ground

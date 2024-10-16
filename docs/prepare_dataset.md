@@ -10,7 +10,7 @@ python scripts/data_converter/dair2kitti.py --source-root data/dair-v2x-i --targ
 
 The directory will be as follows.
 ```
-BEVHeight
+BEVHeight_Plus
 ├── data
 │   ├── dair-v2x-i
 │   │   ├── velodyne
@@ -44,7 +44,7 @@ python scripts/data_converter/rope2kitti.py --source-root data/rope3d --target-r
 ```
 The directory will be as follows.
 ```
-BEVHeight
+BEVHeight_Plus
 ├── data
 |   ├── rope3d
 |   |   ├── training
@@ -74,7 +74,7 @@ python scripts/gen_info_rope3d.py
 
 The directory will be as follows.
 ```
-BEVHeight
+BEVHeight_Plus
 ├── data
 |   └── kitti
 |   |   ├── training
@@ -102,7 +102,7 @@ python scripts/gen_info_kitti.py --data_root data/kitti
 #### 4.2. Download the processed KITTI-360 `train_val` and dummy `testing` [labels](https://drive.google.com/file/d/1h1VmHNdoIKRecJKANt1Wj_-nDNX_HCQG/view?usp=sharing). Extract them.
 #### 4.3. Arrange datasets as
 ```
-BEVHeight
+BEVHeight_Plus
 ├── data
 |   └── kitti-360
 |   |   ├── training
@@ -164,7 +164,7 @@ Convert Waymo dataset parsed to KITTI format
 python scripts/data_converter/waymo2kitti.py --source-root data/waymo/parse_data --target-root data/waymo-kitti
 ```
 ```
-BEVHeight
+BEVHeight_Plus
 ├── data
 │   ├── waymo
 │   │   ├── ImageSets

@@ -73,14 +73,15 @@
 - [Installation](docs/install.md)
 - [Prepare Dataset](docs/prepare_dataset.md)
 
-Train BEVHeight with 8 GPUs
+Train `BEVDepth / BEVHeight / BEVHeight++` with 8 GPUs
 ```
 python [EXP_PATH] --amp_backend native -b 8 --gpus 8
 ```
-Eval BEVHeight with 8 GPUs
+Eval `BEVDepth / BEVHeight / BEVHeight++` with 8 GPUs
 ```
 python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
 ```
+**For more specific training and evaluation commands, please refer to the `train_scripts` directory.**
 
 # Experimental Results
 - **DAIR-V2X-I Dataset**
