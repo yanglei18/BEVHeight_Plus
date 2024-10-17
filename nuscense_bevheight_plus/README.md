@@ -1,131 +1,90 @@
-# BEVDet
+<p align="center">
 
-![Illustrating the performance of the proposed BEVDet on the nuScenes val set](./resources/nds-fps.png)
+  <h1 align="center">BEVHeight++: Toward Robust Visual Centric 3D Object Detection</h1>
+  <p align="center">
+    <a href="https://scholar.google.com/citations?user=EUnI2nMAAAAJ&hl=zh-CN"><strong>Lei Yang</strong></a>
+    · 
+    <a href="https://scholar.google.com.hk/citations?user=1ltylFwAAAAJ&hl=zh-CN&oi=sra"><strong>Tao Tang</strong></a>
+    ·
+    <a href="https://www.tsinghua.edu.cn/"><strong>Jun Li</strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=aMnHLz4AAAAJ&hl=zh-CN&oi=ao"><strong>Kun Yuan</strong></a>
+    ·
+    <a href="https://damo.alibaba.com/labs/intelligent-transportation"><strong>Peng Chen</strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=kLTnwAsAAAAJ&hl=zh-CN&oi=sra"><strong>Li Wang</strong></a>
+    ·
+    <a href="https://www.tsinghua.edu.cn/"><strong>Yi Huang</strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=KId65yQAAAAJ&hl=zh-CN&oi=ao"><strong>Lei Li</strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=0Q7pN4cAAAAJ&hl=zh-CN&oi=sra"><strong>Xinyu Zhang</strong></a>
+    ·
+    <a href="https://scholar.google.com.hk/citations?user=Jtmq_m0AAAAJ&hl=zh-CN&oi=sra"><strong>Kaicheng Yu</strong></a>
+  </p>
 
-## News
 
-- **2022.01.12** Support TensorRT-INT8.
-- **2022.11.24** A new branch of bevdet codebase, dubbed dev2.0, is released. dev2.0 includes the following features:
+<h2 align="center"></h2>
+  <div align="center">
+    <img src="../assets/BEVHeight++.jpg" alt="Logo" width="88%">
+  </div>
 
-1. support **BEVPoolv2**, whose inference speed is up to **15.1 times** the previous fastest implementation of Lift-Splat-Shoot view transformer. It is also far less memory consumption.
-   ![bevpoolv2](./resources/bevpoolv2.png)
-   ![bevpoolv2](./resources/bevpoolv2_performance.png)
-2. use the origin of ego coordinate system as the center of the receptive field instead of the Lidar's.
-3. **support conversion of BEVDet from pytorch to TensorRT.**
-4. use the long term temporal fusion as SOLOFusion.
-5. train models without CBGS by default.
-6. use key frame for temporal fusion.
-7. Technique Report [BEVPoolv2](https://arxiv.org/abs/2211.17111) in English and [Blog](https://zhuanlan.zhihu.com/p/586637783) in Chinese.
+<p align="center">
+  <br>
+    <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
+    <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
+     <a href='https://hub.docker.com/repository/docker/yanglei2024/op-bevheight/general'><img src='https://img.shields.io/badge/Docker-9cf.svg?logo=Docker' alt='Docker'></a>
+    <br></br>
+    </a>
+  </p>
+</p>
 
-- [History](./docs/en/news.md)
+**BEVHeight++** is a new vision-based 3D object detector specially designed for both roadside and vihicle-side scenarios. On popular 3D detection benchmarks of roadside cameras, BEVHeight++ surpasses all previous vision-centric methods by a significant margin. In terms of the ego-vehicle scenario, our BEVHeight++ also possesses superior over depth-only methods.
 
-## Main Results
+# Getting Started
 
-| Config                                                                    | mAP        | NDS        | FPS  | Model                                                                                          | Log                                                                                            |
-| ------------------------------------------------------------------------- | ---------- | ---------- | ---- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [**BEVDet-R50**](configs/bevdet/bevdet-r50.py)                            | 27.8       | 32.2       | 18.7 | [google](https://drive.google.com/drive/folders/1Dh2FbEChbfhIaBHimPP4jbibs8XjJ5rx?usp=sharing) | [google](https://drive.google.com/drive/folders/1Dh2FbEChbfhIaBHimPP4jbibs8XjJ5rx?usp=sharing) |
-| [**BEVDet-R50-CBGS**](configs/bevdet/bevdet-r50-cbgs.py)                  | 30.7       | 38.2       | 18.7 | [google](https://drive.google.com/drive/folders/1Dh2FbEChbfhIaBHimPP4jbibs8XjJ5rx?usp=sharing) | [google](https://drive.google.com/drive/folders/1Dh2FbEChbfhIaBHimPP4jbibs8XjJ5rx?usp=sharing) |
-| [**BEVDet-R50-4D-Depth-CBGS**](configs/bevdet/bevdet4d-r50-depth-cbgs.py) | 40.2/40.6# | 52.3/52.6# | 16.4 | [google](https://drive.google.com/drive/folders/1Dh2FbEChbfhIaBHimPP4jbibs8XjJ5rx?usp=sharing) | [google](https://drive.google.com/drive/folders/1Dh2FbEChbfhIaBHimPP4jbibs8XjJ5rx?usp=sharing) |
+ ### 0. Installation as [BEVDet](https://github.com/HuangJunJie2017/BEVDet)
 
-\# align previous frame bev feature during the view transformation.
 
-## Inference speed with different backends
-
-| Backend       | 256x704 | 384x1056 | 512x1408 | 640x1760 |
-| ------------- | ------- | -------- | -------- | -------- |
-| PyTorch       | 37.9    | 64.7     | 105.7    | 154.2    |
-| TensorRT      | 18.4    | 25.9     | 40.0     | 58.3     |
-| TensorRT-FP16 | 7.2     | 10.6     | 15.3     | 21.2     |
-| TensorRT-INT8 | 4.4     | 5.8      | 8.2      | 11.0     |
-
-- Evaluate with [**BEVDet-R50**](configs/bevdet/bevdet-r50.py) on a RTX 3090 GPU. We omit the postprocessing, which runs about 14.3 ms with the PyTorch backend.
-
-## Get Started
-
-#### Installation and Data Preparation
-
-1. Please refer to [getting_started.md](docs/en/getting_started.md) for installing BEVDet as mmdetection3d. [Docker](docker/Dockerfile) is recommended for environment preparation.
-2. Prepare nuScenes dataset as introduced in [nuscenes_det.md](docs/en/datasets/nuscenes_det.md) and create the pkl for BEVDet by running:
-
-```shell
-python tools/create_data_bevdet.py
-```
-
-#### Estimate the inference speed of BEVDet
+ ### 1. Prepare nuScenes Dataset
+ Download nuScenes dataset from official [website](https://www.nuscenes.org/nuscenes).
 
 ```shell
-# with pre-computation acceleration
-python tools/analysis_tools/benchmark.py $config $checkpoint
-# 4D with pre-computation acceleration
-python tools/analysis_tools/benchmark_sequential.py $config $checkpoint
-# view transformer only
-python tools/analysis_tools/benchmark_view_transformer.py $config $checkpoint
+ln -s [nuScenes-dataset-root] ./data/nuscenes
 ```
 
-#### Estimate the flops of BEVDet
-
+### 2. Prepare infos for nuScenes dataset.
 ```shell
-python tools/analysis_tools/get_flops.py configs/bevdet/bevdet-r50.py --shape 256 704
+python tools/create_data_bevheight_plus.py
 ```
 
-#### Visualize the predicted result.
-
-- Private implementation. (Visualization remotely/locally)
-
+### 3. Train BEVHeight++ with 8 GPUs
 ```shell
-python tools/test.py $config $checkpoint --format-only --eval-options jsonfile_prefix=$savepath
-python tools/analysis_tools/vis.py $savepath/pts_bbox/results_nusc.json
+# stage 1: 
+bash tools/dist_train.sh configs/bevheight_plus/bevheight_plus-r50-depth-cbgs-first-stage.py 8
+
+# stage 2:
+mv [PTH_PATH_OF_STAGE_1] pretrained_model/epoch_20_ema.pth
+bash tools/dist_train.sh configs/bevheight_plus/bevheight_plus-r50-depth-cbgs.py 8
 ```
 
-#### Convert to TensorRT and test inference speed.
-
+### 4. Eval BEVHeight++ with 8 GPUs
 ```shell
-1. install mmdeploy from https://github.com/HuangJunJie2017/mmdeploy
-2. convert to TensorRT
-python tools/convert_bevdet_to_TRT.py $config $checkpoint $work_dir --fuse-conv-bn --fp16 --int8
-3. test inference speed
-python tools/analysis_tools/benchmark_trt.py $config $engine
+bash tools/dist_test.sh configs/bevheight_plus/bevheight_plus-r50-depth-cbgs.py [PTH_PATH_OF_STAGE_2] 8 --eval mAP
 ```
 
-## Acknowledgement
+# Acknowledgment
+This project is not possible without the following codebases.
+* [BEVDet](https://github.com/HuangJunJie2017/BEVDet)
+* [mmdetection3d](https://github.com/open-mmlab/mmdetection3d)
 
-This project is not possible without multiple great open-sourced code bases. We list some notable examples below.
-
-- [open-mmlab](https://github.com/open-mmlab)
-- [CenterPoint](https://github.com/tianweiy/CenterPoint)
-- [Lift-Splat-Shoot](https://github.com/nv-tlabs/lift-splat-shoot)
-- [Swin Transformer](https://github.com/microsoft/Swin-Transformer)
-- [BEVFusion](https://github.com/mit-han-lab/bevfusion)
-- [BEVDepth](https://github.com/Megvii-BaseDetection/BEVDepth)
-
-Beside, there are some other attractive works extend the boundary of BEVDet.
-
-- [BEVerse](https://github.com/zhangyp15/BEVerse)  for multi-task learning.
-- [BEVStereo](https://github.com/Megvii-BaseDetection/BEVStereo)  for stero depth estimation.
-
-## Bibtex
-
-If this work is helpful for your research, please consider citing the following BibTeX entry.
-
+# Citation
+If you use BEVHeight++ in your research, please cite our work by using the following BibTeX entry:
 ```
-@article{huang2022bevpoolv2,
-  title={BEVPoolv2: A Cutting-edge Implementation of BEVDet Toward Deployment},
-  author={Huang, Junjie and Huang, Guan},
-  journal={arXiv preprint arXiv:2211.17111},
-  year={2022}
-}
-
-@article{huang2022bevdet4d,
-  title={BEVDet4D: Exploit Temporal Cues in Multi-camera 3D Object Detection},
-  author={Huang, Junjie and Huang, Guan},
-  journal={arXiv preprint arXiv:2203.17054},
-  year={2022}
-}
-
-@article{huang2021bevdet,
-  title={BEVDet: High-performance Multi-camera 3D Object Detection in Bird-Eye-View},
-  author={Huang, Junjie and Huang, Guan and Zhu, Zheng and Yun, Ye and Du, Dalong},
-  journal={arXiv preprint arXiv:2112.11790},
-  year={2021}
+@article{yang2023bevheight++,
+  title={Bevheight++: Toward robust visual centric 3d object detection},
+  author={Yang, Lei and Tang, Tao and Li, Jun and Chen, Peng and Yuan, Kun and Wang, Li and Huang, Yi and Zhang, Xinyu and Yu, Kaicheng},
+  journal={arXiv preprint arXiv:2309.16179},
+  year={2023}
 }
 ```

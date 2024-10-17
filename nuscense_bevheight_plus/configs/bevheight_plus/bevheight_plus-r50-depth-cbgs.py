@@ -46,7 +46,7 @@ numC_Trans = 80
 numC_Trans_Bev= 160 if use_height==2 else 80
 pretrained_model = "pretrained_model/epoch_20_ema.pth"
 
-multi_adj_frame_id_cfg = (1, 1+1, 1)
+multi_adj_frame_id_cfg = (1, 1+8, 1)
 
 model = dict(
     type='BEVDepth4D',
@@ -236,7 +236,7 @@ share_data_config = dict(
 
 test_data_config = dict(
     pipeline=test_pipeline,
-    ann_file=data_root + 'bevdetv2-nuscenes_infos_val.pkl')
+    ann_file=data_root + 'bevheight_plus_nuscenes_infos_val.pkl')
 
 data = dict(
     samples_per_gpu=4,
@@ -245,7 +245,7 @@ data = dict(
         type='CBGSDataset',
         dataset=dict(
         data_root=data_root,
-        ann_file=data_root + 'bevdetv2-nuscenes_infos_train.pkl',
+        ann_file=data_root + 'bevheight_plus_nuscenes_infos_train.pkl',
         pipeline=train_pipeline,
         classes=class_names,
         test_mode=False,

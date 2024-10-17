@@ -18,7 +18,7 @@ data_config = {
     ],
     'Ncams':
     6,
-    'input_size': (512, 1408),
+    'input_size': (256, 704),
     'src_size': (900, 1600),
 
     # Augmentation
@@ -35,27 +35,27 @@ grid_config = {
     'y': [-51.2, 51.2, 0.8],
     'z': [-5, 3, 8],
     'depth': [1.0, 60.0, 0.5],
-    'height': [-2.0, 4.0, 80],
+    'height': [-4.0, 2.0, 80],
 }
 
 voxel_size = [0.1, 0.1, 0.2]
 
-use_height = True
+find_unused_parameters = False
+use_height = 0  # 0: BEVDepth  1: BEVHeight  2: BEVHeight++
 numC_Trans = 80
-numC_Trans_Bev= 160 if use_height else 80
-pretrained_model = "pretrained_model/epoch_18_ema.pth"
+numC_Trans_Bev= 160 if use_height==2 else 80
 
-multi_adj_frame_id_cfg = (1, 1+1, 1)
+multi_adj_frame_id_cfg = (1, 1+8, 1)
 
 model = dict(
     type='BEVDepth4D',
-    use_height=use_height,
     align_after_view_transfromation=False,
     num_adj=len(range(*multi_adj_frame_id_cfg)),
+    use_height=use_height,
     img_backbone=dict(
-        pretrained='torchvision://resnet101',
+        pretrained='torchvision://resnet50',
         type='ResNet',
-        depth=101,
+        depth=50,
         num_stages=4,
         out_indices=(2, 3),
         frozen_stages=-1,
@@ -188,7 +188,7 @@ train_pipeline = [
     dict(type='DefaultFormatBundle3D', class_names=class_names),
     dict(
         type='Collect3D', keys=['img_inputs', 'gt_bboxes_3d', 'gt_labels_3d',
-                                'gt_depth'])
+                                'gt_depth', 'gt_height'])
 ]
 
 test_pipeline = [
@@ -235,16 +235,16 @@ share_data_config = dict(
 
 test_data_config = dict(
     pipeline=test_pipeline,
-    ann_file=data_root + 'bevdetv2-nuscenes_infos_val.pkl')
+    ann_file=data_root + 'bevheight_plus_nuscenes_infos_val.pkl')
 
 data = dict(
     samples_per_gpu=4,
-    workers_per_gpu=4,
+    workers_per_gpu=8,
     train=dict(
         type='CBGSDataset',
         dataset=dict(
         data_root=data_root,
-        ann_file=data_root + 'bevdetv2-nuscenes_infos_train.pkl',
+        ann_file=data_root + 'bevheight_plus_nuscenes_infos_train.pkl',
         pipeline=train_pipeline,
         classes=class_names,
         test_mode=False,
@@ -260,7 +260,7 @@ for key in ['val', 'test']:
 data['train']['dataset'].update(share_data_config)
 
 # Optimizer
-optimizer = dict(type='AdamW', lr=2e-5, weight_decay=1e-2)
+optimizer = dict(type='AdamW', lr=2e-4, weight_decay=1e-2)
 optimizer_config = dict(grad_clip=dict(max_norm=5, norm_type=2))
 lr_config = dict(
     policy='step',
@@ -281,5 +281,7 @@ custom_hooks = [
         temporal_start_epoch=3,
     ),
 ]
+
+evaluation = dict(interval=2)
 
 # fp16 = dict(loss_scale='dynamic')

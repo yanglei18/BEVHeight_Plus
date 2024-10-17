@@ -44,9 +44,7 @@
 # News
 
 - [2024/09/06] Both arXiv and codebase are released!
-# Incoming
 
-- [ ] Release the pretrained models
 
 <br>
 
@@ -81,14 +79,139 @@ Eval `BEVDepth / BEVHeight / BEVHeight++` with 8 GPUs
 ```
 python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
 ```
-**For more specific training and evaluation commands, please refer to the `train_scripts` directory.**
+>* **For more specific training and evaluation commands, please refer to the `train_scripts` directory.**
+
+>* **For experiments on nuScenes dataset, please refer to the `nuscense_bevheight_plus` directory and this [document](nuscense_bevheight_plus/README.md)
+.** 
 
 # Experimental Results
 - **DAIR-V2X-I Dataset**
-
+<div align=left>
+<table>
+     <tr align=center>
+        <td rowspan="3">Method</td> 
+        <td rowspan="3" align=center>Config</td> 
+        <td colspan="3" align=center>Car</td>
+        <td colspan="3" align=center>Pedestrain</td>
+        <td colspan="3" align=center>Cyclist</td>
+    </tr>
+    <tr align=center>
+        <td colspan="3" align=center>3D@0.5</td>
+        <td colspan="3" align=center>3D@0.25</td>
+        <td colspan="3" align=center>3D@0.25</td>
+    </tr>
+    <tr align=center>
+        <td>Easy</td>
+        <td>Mod.</td>
+        <td>Hard</td>
+        <td>Easy</td>
+        <td>Mod.</td>
+        <td>Hard</td>
+        <td>Easy</td>
+        <td>Mod.</td>
+        <td>Hard</td>
+    </tr>
+    <tr align=center>
+        <td rowspan="1">BEVDepth</td> 
+         <td><a href=exps/dair-v2x/bev_depth_lss_r101_864_1536_256x256_102.py>config</td>
+        <td>75.50</td>
+        <td>63.58</td>
+        <td>63.67</td>
+        <td>34.95</td>
+        <td>33.42</td>
+        <td>33.27</td>
+        <td>55.67</td>
+        <td>55.47</td>
+        <td>55.34</td>
+    </tr>
+    <tr align=center>
+        <td rowspan="1">BEVHeight</td> 
+         <td><a href=exps/dair-v2x/bev_height_lss_r101_864_1536_256x256_102.py>config</td>
+        <td>77.48</td>
+        <td>65.46</td>
+        <td>65.53</td>
+        <td>41.22</td>
+        <td>39.29</td>
+        <td>39.46</td>
+        <td>60.23</td>
+        <td>60.08</td>
+        <td>60.54</td>
+    </tr>
+    <tr align=center>
+        <td rowspan="1">BEVHeight++</td> 
+         <td><a href=exps/dair-v2x/bev_height_plus_lss_r101_864_1536_256x256_102.py>config</td>
+        <td><b>79.31</b></td>
+        <td><b>68.62</b></td>
+        <td><b>68.68</b></td>
+        <td><b>42.87</b></td>
+        <td><b>40.88</b></td>
+        <td><b>41.06</b></td>
+        <td><b>60.76</b></td>
+        <td><b>60.52</b></td>
+        <td><b>61.01</b></td>
+    </tr>
+<table>
+</div>
 
 - **Rope3D Dataset**
-
+<div align=center>
+<table>
+     <tr align=center>
+        <td rowspan="2">Method</td> 
+        <td rowspan="2" align=center>Config</td> 
+        <td colspan="2" align=center>Car | 3D@0.5</td>
+        <td colspan="2" align=center>Big Vehicle | 3D@0.5</td>
+        <td colspan="2" align=center>Car | 3D@0.7</td>
+        <td colspan="2" align=center>Big Vehicle | 3D@0.7</td>
+    </tr>
+    <tr align=center>
+        <td>AP</td>
+        <td>Rope</td>
+        <td>AP</td>
+        <td>Rope</td>
+        <td>AP</td>
+        <td>Rope</td>
+        <td>AP</td>
+        <td>Rope</td>
+    </tr>
+    <tr align=center>
+        <td rowspan="1">BEVDepth</td> 
+         <td><a href=exps/rope3d/bev_depth_lss_r101_864_1536_256x256_102.py>config</td>
+        <td>69.63</td> 
+        <td>74.70</td> 
+        <td>45.02</td> 
+        <td>54.64</td> 
+        <td>42.56</td> 
+        <td>53.05</td> 
+        <td>21.47</td> 
+        <td>35.82</td>
+    </tr>
+    <tr align=center>
+        <td rowspan="1">BEVHeight</td> 
+        <td><a href=exps/rope3d/bev_height_lss_r101_864_1536_256x256_102.py>config</td>
+        <td>74.60</td> 
+        <td>78.72</td> 
+        <td>48.93</td> 
+        <td>57.70</td> 
+        <td>45.73</td> 
+        <td>55.62</td> 
+        <td>23.07</td> 
+        <td>37.04</td>
+    </tr>
+    <tr align=center>
+        <td rowspan="1">BEVHeight++</td> 
+         <td><a href=exps/rope3d/bev_height_plus_lss_r101_864_1536_256x256_102.py>config</td>
+        <td><b>76.12</b></td> 
+        <td><b>80.91</b></td> 
+        <td><b>50.11</b></td> 
+        <td><b>59.92</b></td> 
+        <td><b>47.03</b></td> 
+        <td><b>57.77</b></td> 
+        <td><b>24.43</b></td> 
+        <td><b>39.57</b></td>
+    </tr>
+</table>
+</div>
 
 - **KITTI Dataset**
 <div align=left>
@@ -97,7 +220,7 @@ python [EXP_PATH] --ckpt_path [CKPT_PATH] -e -b 8 --gpus 8
         <td rowspan="3">Method</td> 
         <td colspan="3" align=center>AP|3D</td>
         <td colspan="3" align=center>AP|BEV</td>
-        <td rowspan="3" align=center>config</td> 
+        <td rowspan="3" align=center>Config</td> 
         <td rowspan="3" align=center>model ckpt</td>
     </tr>
     <tr align=center>
@@ -378,10 +501,14 @@ This project is not possible without the following codebases.
 * [BEVHeight](https://github.com/ADLab-AutoDrive/BEVHeight)
 * [BEVDepth](https://github.com/Megvii-BaseDetection/BEVDepth)
 * [DAIR-V2X](https://github.com/AIR-THU/DAIR-V2X)
+* [BEVDet](https://github.com/HuangJunJie2017/BEVDet)
+* [mmdetection3d](https://github.com/open-mmlab/mmdetection3d)
 * [pypcd](https://github.com/dimatura/pypcd)
+* [PanopticBEV](https://github.com/abhi1kumar/SeaBird/tree/main/PanopticBEV)
+
 
 # Citation
-If you use BEVHeight in your research, please cite our work by using the following BibTeX entry:
+If you use BEVHeight++ in your research, please cite our work by using the following BibTeX entry:
 ```
 @article{yang2023bevheight++,
   title={Bevheight++: Toward robust visual centric 3d object detection},
