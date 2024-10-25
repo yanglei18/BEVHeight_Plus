@@ -668,22 +668,25 @@ def kitti_eval(gt_annos,
     assert len(eval_types) > 0, 'must contain at least one evaluation type'
     if 'aos' in eval_types:
         assert 'bbox' in eval_types, 'must evaluate bbox when evaluating aos'
+    '''
     overlap_0_7 = np.array([[0.7, 0.5, 0.5, 0.7, 0.5], 
                             [0.7, 0.5, 0.5, 0.7, 0.5],
                             [0.7, 0.5, 0.5, 0.7, 0.5]])
-    '''
-    overlap_0_5 = np.array([[0.7, 0.5, 0.5, 0.7, 0.5],
-                            [0.5, 0.25, 0.25, 0.5, 0.25],
-                            [0.5, 0.25, 0.25, 0.5, 0.25]])
-    '''
     overlap_0_5 = np.array([[0.5, 0.25, 0.25, 0.5, 0.25],
                             [0.5, 0.25, 0.25, 0.5, 0.25],
                             [0.5, 0.25, 0.25, 0.5, 0.25]])
     overlap_0_25 = np.array([[0.25, 0.25, 0.25, 0.25, 0.25],
                              [0.25, 0.25, 0.25, 0.25, 0.25],
                              [0.25, 0.25, 0.25, 0.25, 0.25]])
-
     min_overlaps = np.stack([overlap_0_7, overlap_0_5, overlap_0_25], axis=0)  # [2, 3, 5]
+    '''
+    overlap_0_7 = np.array([[0.7, 0.5, 0.5, 0.7, 0.5], 
+                            [0.7, 0.5, 0.5, 0.7, 0.5],
+                            [0.7, 0.5, 0.5, 0.7, 0.5]])
+    overlap_0_5 = np.array([[0.7, 0.5, 0.5, 0.7, 0.5],
+                            [0.5, 0.25, 0.25, 0.5, 0.25],
+                            [0.5, 0.25, 0.25, 0.5, 0.25]])
+    min_overlaps = np.stack([overlap_0_7, overlap_0_5], axis=0)  # [2, 3, 5]
     class_to_name = {
         0: 'Car',
         1: 'Pedestrian',
