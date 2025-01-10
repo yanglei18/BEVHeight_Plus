@@ -423,7 +423,7 @@ class NuscMVDetDataset(Dataset):
         return rotate_bda, scale_bda, flip_dx, flip_dy
 
     def get_lidar_height(self, lidar_points, sweepsensor2keyego, sensor2virtual, reference_height):
-        keyego2virtual = np.matmul(np.linalg.inv(sweepsensor2keyego), sensor2virtual)
+        keyego2virtual = np.matmul(sensor2virtual, np.linalg.inv(sweepsensor2keyego))
         lidar_points = LidarPointCloud(lidar_points.T)
         lidar_points.rotate(keyego2virtual[:3, :3])
         lidar_points.translate(keyego2virtual[:3, 3])
