@@ -143,7 +143,7 @@ def load_checkpoints(model, ckpt_path):
         state_dict = checkpoints['state_dict']
     else:
         state_dict = checkpoints
-    state_dict = clean_state_dict(checkpoints['state_dict'])
+    # state_dict = clean_state_dict(checkpoints['state_dict'])
     # state_dict = checkpoints['state_dict']
     model.load_state_dict(state_dict, strict=False)
 
@@ -278,11 +278,11 @@ def main():
         test_cfg=cfg.get('test_cfg'))
     model.init_weights()
     
-    '''
+    
     if cfg.use_height in [2]:
         load_checkpoints(model, cfg.pretrained_model)
-        enable_frozen_layers(model)
-    '''
+        # enable_frozen_layers(model)
+    
     logger.info(f'Model:\n{model}')
     datasets = [build_dataset(cfg.data.train)]
     if len(cfg.workflow) == 2:

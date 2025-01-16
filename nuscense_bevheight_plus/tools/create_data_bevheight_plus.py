@@ -127,11 +127,36 @@ def add_ann_adj_info(extra_tag):
                   'wb') as fid:
             pickle.dump(dataset, fid)
 
+def add_ann_adj_info_test(extra_tag):
+    nuscenes_version = 'v1.0-test'
+    dataroot = './data/nuscenes/'
+    nuscenes = NuScenes(nuscenes_version, dataroot)
+    for set in ['test']:
+        dataset = pickle.load(
+            open('./data/nuscenes/%s_infos_%s.pkl' % (extra_tag, set), 'rb'))
+        for id in range(len(dataset['infos'])):
+            if id % 10 == 0:
+                print('%d/%d' % (id, len(dataset['infos'])))
+            info = dataset['infos'][id]
+            
+            # get sweep adjacent frame info
+            sample = nuscenes.get('sample', info['token'])
+            gt_boxes = list()
+            gt_labels = list()
+            for ind in range(info['gt_boxes'].shape[0]):
+                gt_boxes.append(info['gt_boxes'][ind])
+                gt_labels.append(classes.index(info['gt_names'][ind]))
+                
+            dataset['infos'][id]['ann_infos'] = gt_boxes, gt_labels
+            dataset['infos'][id]['scene_token'] = sample['scene_token']
+        with open('./data/nuscenes/%s_infos_%s.pkl' % (extra_tag, set),
+                  'wb') as fid:
+            pickle.dump(dataset, fid)
 
 if __name__ == '__main__':
     dataset = 'nuscenes'
     version = 'v1.0'
-    train_version = f'{version}-trainval'
+    train_version = f'{version}-test'
     root_path = './data/nuscenes'
     extra_tag = 'bevheight_plus_nuscenes'
     nuscenes_data_prep(
@@ -141,4 +166,5 @@ if __name__ == '__main__':
         max_sweeps=0)
 
     print('add_ann_infos')
-    add_ann_adj_info(extra_tag)
+    add_ann_adj_info_test(extra_tag)
+    # add_ann_adj_info(extra_tag)
