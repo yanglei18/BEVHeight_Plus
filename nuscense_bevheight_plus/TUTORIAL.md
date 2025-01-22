@@ -21,6 +21,7 @@ mkdir data && mkdir pretrained_model
 ln -s [nuScenes-dataset-root] ./data/nuscenes
 mv bevheight_plus_nuscenes_infos_all.pkl ./data/nuscenes
 mv bevheight_plus_nuscenes_infos_val.pkl ./data/nuscenes
+mv bevheight_plus_nuscenes_infos_test.pkl ./data/nuscenes
 mv fcos3d_vovnet_imgbackbone-remapped.pth ./pretrained_model
 ```
 

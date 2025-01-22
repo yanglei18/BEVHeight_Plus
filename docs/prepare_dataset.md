@@ -80,6 +80,8 @@ python scripts/gen_info_kitti.py --data_root data/kitti
 ## 4. KITTI-360 Dataset
 #### 4.1. Download KITTI-360 dataset from official [website](https://www.cvlibs.net/datasets/kitti-360/).
 #### 4.2. Download the processed KITTI-360 `train_val` and dummy `testing` [labels](https://drive.google.com/file/d/1h1VmHNdoIKRecJKANt1Wj_-nDNX_HCQG/view?usp=sharing). Extract them.
+>* Thanks for the KITTI-360 labels from [SeaBird](https://github.com/abhi1kumar/SeaBird) repository.
+
 
 #### 4.3. Convert the dataset to KITTI format.
 ```

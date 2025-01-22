@@ -1,4 +1,5 @@
 import pickle
+import random
 
 def read_pkl(pkl_path):
     with open(pkl_path, 'rb') as f:
@@ -16,17 +17,21 @@ if __name__ == "__main__":
     print(train_data.keys())
     print(train_data["metadata"])
     
-    print(type(train_data["infos"]), train_data["infos"][0].keys())
-    print(type(test_data["infos"]), test_data["infos"][0].keys())
+    print(len(train_data["infos"]), train_data["infos"][0].keys())
+    print(len(test_data["infos"]), test_data["infos"][0].keys())
     
+    all_infos = train_data["infos"][6008:] + val_data["infos"] + test_data["infos"]
+    random.shuffle(all_infos)
+
     all_data = {
         "metadata": train_data["metadata"],
-        "infos": train_data["infos"] + val_data["infos"] + test_data["infos"]
+        "infos": all_infos
     }
     
-    all_pkl = "data/nuscenes/bevheight_plus_nuscenes_infos_all.pkl"
+    all_pkl = "data/nuscenes/bevheight_plus_nuscenes_infos_random_all.pkl"
+    
     with open(all_pkl,'wb') as fid:
-        pickle.dump(all_data, fid)
+       pickle.dump(all_data, fid)
     
     
     

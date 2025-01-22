@@ -504,7 +504,7 @@ This project is not possible without the following codebases.
 * [BEVDet](https://github.com/HuangJunJie2017/BEVDet)
 * [mmdetection3d](https://github.com/open-mmlab/mmdetection3d)
 * [pypcd](https://github.com/dimatura/pypcd)
-* [PanopticBEV](https://github.com/abhi1kumar/SeaBird/tree/main/PanopticBEV)
+* [SeaBird](https://github.com/abhi1kumar/SeaBird)
 
 
 # Citation

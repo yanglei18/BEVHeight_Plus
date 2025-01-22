@@ -18,7 +18,8 @@ data_config = {
     ],
     'Ncams':
     6,
-    'input_size': (256, 704),
+    'input_size': (768, 1600),
+    # 'input_size': (256, 704),
     'src_size': (900, 1600),
 
     # Augmentation
@@ -46,7 +47,7 @@ numC_Trans = 80
 numC_Trans_Bev= 160 if use_height==2 else 80
 pretrained_model = "pretrained_model/fcos3d_vovnet_imgbackbone-remapped.pth"
 
-multi_adj_frame_id_cfg = (1, 1+1, 1)
+multi_adj_frame_id_cfg = (1, 1+8, 1)
 
 model = dict(
     type='BEVDepth4D',
@@ -209,6 +210,10 @@ test_pipeline = [
                 type='DefaultFormatBundle3D',
                 class_names=class_names,
                 with_label=False),
+            dict(type='RandomFlip3D'),
+            # dict(type='MyResize', img_scale=img_scale, keep_ratio=True),
+            # dict(type='MyNormalize', **img_norm_cfg),
+            # dict(type='MyPad', size_divisor=32),
             dict(type='Collect3D', keys=['points', 'img_inputs'])
         ])
 ]
@@ -233,13 +238,13 @@ test_data_config = dict(
     ann_file=data_root + 'bevheight_plus_nuscenes_infos_val.pkl')
 
 data = dict(
-    samples_per_gpu=4,
-    workers_per_gpu=8,
+    samples_per_gpu=1,
+    workers_per_gpu=1,
     train=dict(
         type='CBGSDataset',
         dataset=dict(
         data_root=data_root,
-        ann_file=data_root + 'bevheight_plus_nuscenes_infos_train.pkl',
+        ann_file=data_root + 'bevheight_plus_nuscenes_infos_test.pkl',
         pipeline=train_pipeline,
         classes=class_names,
         test_mode=False,
@@ -255,7 +260,7 @@ for key in ['val', 'test']:
 data['train']['dataset'].update(share_data_config)
 
 # Optimizer
-optimizer = dict(type='AdamW', lr=2e-4, weight_decay=1e-2)
+optimizer = dict(type='AdamW', lr=1e-5, weight_decay=1e-2)
 optimizer_config = dict(grad_clip=dict(max_norm=5, norm_type=2))
 lr_config = dict(
     policy='step',
