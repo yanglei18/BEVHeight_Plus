@@ -120,7 +120,7 @@ def clean_state_dict(state_dict):
             new_state_dict[k] = v
         if k[:9] == 'img_neck.':
             new_state_dict[k] = v
-        if k[:21] == 'img_view_transformer.':
+        if k[:31] == 'img_view_transformer.depth_net.':
             new_state_dict[k] = v
     return new_state_dict
 
@@ -142,9 +142,8 @@ def load_checkpoints(model, ckpt_path):
     if 'state_dict' in checkpoints:
         state_dict = checkpoints['state_dict']
     else:
-        state_dict = checkpoints
-    # state_dict = clean_state_dict(checkpoints['state_dict'])
-    # state_dict = checkpoints['state_dict']
+        state_dict = checkpoints    
+    state_dict = clean_state_dict(state_dict)
     model.load_state_dict(state_dict, strict=False)
 
 def enable_frozen_layers(model):
@@ -280,7 +279,7 @@ def main():
     
     if cfg.use_height in [2]:
         load_checkpoints(model, cfg.pretrained_model)
-        # enable_frozen_layers(model)
+        enable_frozen_layers(model)
     
     logger.info(f'Model:\n{model}')
     datasets = [build_dataset(cfg.data.train)]

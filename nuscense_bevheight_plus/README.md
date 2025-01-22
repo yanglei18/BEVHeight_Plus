@@ -73,6 +73,11 @@ bash tools/dist_train.sh configs/bevheight_plus/bevheight_plus-r50-depth-cbgs.py
 bash tools/dist_test.sh configs/bevheight_plus/bevheight_plus-r50-depth-cbgs.py [PTH_PATH_OF_STAGE_2] 8 --eval mAP
 ```
 
+# Results on NuScenes Test Set.
+| Model | Backbone| mAP | mATE | mASE | mAOE | mAVE | mAAE | NDS | Config | Download|
+| :---: | :---: | :---: | :---:|:---:| :---: | :---:| :---: | :---: | :---: | :---: |
+|BEVHeight++| V2-99 | 0.53 | 0.44 | 0.26 | 0.36 | 0.30 | 0.14 | 0.61 |[config](configs/bevheight_plus/bevheight_plus-vov-depth-cbgs-900-1600.py) |[model](https://cloud.tsinghua.edu.cn/f/7251e41c74e74c97ada5/?dl=1) /  [log](https://cloud.tsinghua.edu.cn/f/cefb37bbb53c40118279/?dl=1) |
+
 # Acknowledgment
 This project is not possible without the following codebases.
 * [BEVDet](https://github.com/HuangJunJie2017/BEVDet)
