@@ -42,9 +42,8 @@
 **BEVHeight++** is a new vision-based 3D object detector specially designed for both roadside and vihicle-side scenarios. On popular 3D detection benchmarks of roadside cameras, BEVHeight++ surpasses all previous vision-centric methods by a significant margin. In terms of the ego-vehicle scenario, our BEVHeight++ also possesses superior over depth-only methods.
 
 # News
-
+- [2025/02/03] Release the pre-trained models!
 - [2024/09/06] Both arXiv and codebase are released!
-
 
 <br>
 
