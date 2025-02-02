@@ -499,7 +499,8 @@ class NuScenesDataset(Custom3DDataset):
         assert len(results) == len(self), (
             'The length of results is not equal to the dataset len: {} != {}'.
             format(len(results), len(self)))
-
+        # jsonfile_prefix = "submission"
+        # print("jsonfile_prefix: ", jsonfile_prefix)
         if jsonfile_prefix is None:
             tmp_dir = tempfile.TemporaryDirectory()
             jsonfile_prefix = osp.join(tmp_dir.name, 'results')
@@ -523,6 +524,7 @@ class NuScenesDataset(Custom3DDataset):
                 tmp_file_ = osp.join(jsonfile_prefix, name)
                 result_files.update(
                     {name: self._format_bbox(results_, tmp_file_)})
+                print("res_path: ", tmp_dir, result_files)
         return result_files, tmp_dir
 
     def evaluate(self,

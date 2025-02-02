@@ -1,5 +1,9 @@
 BEVHeight_Plus.egg-info/
 outputs/
+nuscense_bevheight_plus/work_dirs/
+nuscense_bevheight_plus/work_dirs
+nuscense_bevheight_plus/data/
+nuscense_bevheight_plus/pretrained_model/
 data/
 __pycache__/
 ckpt/

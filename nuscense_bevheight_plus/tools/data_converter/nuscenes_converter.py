@@ -5,14 +5,18 @@ from os import path as osp
 from typing import List, Tuple, Union
 
 import mmcv
+import json
 import numpy as np
 from nuscenes.nuscenes import NuScenes
 from nuscenes.utils.geometry_utils import view_points
 from pyquaternion import Quaternion
 from shapely.geometry import MultiPoint, box
+from scipy.spatial.transform import Rotation as R
 
 from mmdet3d.core.bbox import points_cam2img
 from mmdet3d.datasets import NuScenesDataset
+
+from nuscenes.utils.data_classes import Box
 
 nus_categories = ('car', 'truck', 'trailer', 'bus', 'construction_vehicle',
                   'bicycle', 'motorcycle', 'pedestrian', 'traffic_cone',
@@ -22,7 +26,6 @@ nus_attributes = ('cycle.with_rider', 'cycle.without_rider',
                   'pedestrian.moving', 'pedestrian.standing',
                   'pedestrian.sitting_lying_down', 'vehicle.moving',
                   'vehicle.parked', 'vehicle.stopped', 'None')
-
 
 def create_nuscenes_infos(root_path,
                           info_prefix,
@@ -163,6 +166,13 @@ def _fill_trainval_infos(nusc,
     """
     train_nusc_infos = []
     val_nusc_infos = []
+    
+    if test:
+        print("loading results_nusc.json")
+        with open('data/results_nusc.json', 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            results = data["results"]
+        print(type(results), len(results))
 
     for sample in mmcv.track_iter_progress(nusc.sample):
         lidar_token = sample['data']['LIDAR_TOP']
@@ -264,6 +274,92 @@ def _fill_trainval_infos(nusc,
             info['num_radar_pts'] = np.array(
                 [a['num_radar_pts'] for a in annotations])
             info['valid_flag'] = valid_flag
+        else:
+            calib_data = nusc.get('calibrated_sensor', sd_rec['calibrated_sensor_token'])
+            ego_data = nusc.get('ego_pose', sd_rec['ego_pose_token'])
+            
+            ego2global_rotation = info['cams']['CAM_FRONT']['ego2global_rotation']
+            ego2global_translation = info['cams']['CAM_FRONT']['ego2global_translation']
+            trans = -np.array(ego2global_translation)
+            rot = Quaternion(ego2global_rotation).inverse
+            sample_result_list = results[sample['token']]
+            
+            gt_boxes, gt_names, gt_velocity, num_lidar_pts, num_radar_pts, valid_flag = [], [], [], [], [], []
+            detection_scores = []
+            count = 1
+            for sample_result in sample_result_list:
+                box = Box(
+                    sample_result['translation'],
+                    sample_result['size'],
+                    Quaternion(sample_result['rotation']),
+                    velocity=np.array([sample_result['velocity'][0], sample_result['velocity'][1], 0.0]),
+                )
+                print("sample_result['velocity']: ", sample_result['velocity'])
+                box.translate(trans)
+                box.rotate(rot)
+                box_xyz = np.array(box.center)
+                box_dxdydz = np.array(box.wlh)[[1, 0, 2]]
+                box_yaw = np.array([box.orientation.yaw_pitch_roll[0]])
+                box_velo = np.array(box.velocity[:2])
+                gt_box = np.concatenate([box_xyz, box_dxdydz, box_yaw, box_velo])
+                
+                detection_name = sample_result['detection_name']
+                detection_score = sample_result['detection_score']
+                
+                if detection_score > 0.10: count += 1
+                gt_boxes.append(gt_box)
+                gt_names.append(detection_name)
+                gt_velocity.append(box_velo)
+                num_lidar_pts.append(100)
+                num_radar_pts.append(30)
+                valid_flag.append(True)
+                detection_scores.append(detection_score)
+                
+                '''
+                # global frame
+                center = sample_result['translation']
+                size = sample_result['size'] # Estimated bounding box size in m: width, length, height.
+                orientation = sample_result['rotation']
+                # 从global frame转换到ego vehicle frame
+                quaternion = Quaternion(ego_data['rotation']).inverse
+                center -= np.array(ego_data['translation'])
+                center = np.dot(quaternion.rotation_matrix, center)
+                orientation = quaternion * orientation
+                
+                # 从ego vehicle frame转换到sensor frame
+                quaternion = Quaternion(calib_data['rotation']).inverse
+                center -= np.array(calib_data['translation'])
+                center = np.dot(quaternion.rotation_matrix, center)                
+                orientation = quaternion * orientation                
+                # convert velo from global to lidar
+                velocity = sample_result['velocity']
+                velo = np.array([*velocity, 0.0])
+                velo = velo @ np.linalg.inv(e2g_r_mat).T @ np.linalg.inv(l2e_r_mat).T
+                velocity = velo[:2]
+                detection_name = sample_result['detection_name']
+                detection_score = sample_result['detection_score']
+                attribute_name = sample_result['attribute_name']
+                if detection_score > 0.10: count += 1
+
+                rot = Quaternion(orientation).yaw_pitch_roll[0] # degree
+                gt_boxes.append([center[0], center[1], center[2], size[1], size[0], size[2], rot])
+                gt_names.append(detection_name)
+                gt_velocity.append(velocity)
+                num_lidar_pts.append(100)
+                num_radar_pts.append(30)
+                valid_flag.append(True)
+                detection_scores.append(detection_score)
+                '''
+                
+            info['gt_boxes'] = np.array(gt_boxes[:count])
+            info['gt_names'] = np.array(gt_names[:count])
+            info['gt_velocity'] = np.array(gt_velocity[:count])
+            info['num_lidar_pts'] = np.array(num_lidar_pts[:count])
+            info['num_radar_pts'] = np.array(num_radar_pts[:count])
+            info['valid_flag'] = np.array(valid_flag[:count])
+            
+            print(info['gt_boxes'].shape, info['gt_names'].shape, info['gt_velocity'].shape, info['num_lidar_pts'].shape)
+            # print(detection_scores)
 
         if sample['scene_token'] in train_scenes:
             train_nusc_infos.append(info)

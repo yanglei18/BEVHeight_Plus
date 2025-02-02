@@ -485,7 +485,7 @@ class NuScenesMonoDataset(CocoDataset):
         detail['{}/mAP'.format(metric_prefix)] = metrics['mean_ap']
         return detail
 
-    def format_results(self, results, jsonfile_prefix=None, **kwargs):
+    def format_results(self, results, jsonfile_prefix="submission", **kwargs):
         """Format the results to json (standard format for COCO evaluation).
 
         Args:
